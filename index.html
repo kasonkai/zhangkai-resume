@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>张铠 — AI & Web3 产品经理</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #050510;
+    --bg-card: rgba(255,255,255,0.025);
+    --border-subtle: rgba(255,255,255,0.06);
+    --border-glow: rgba(99,102,241,0.25);
+    --text-primary: #e4e2ee;
+    --text-secondary: #9693a8;
+    --text-muted: #6b6880;
+    --gold: #c9a144;
+    --gold-light: #e4c76b;
+    --indigo: #6366f1;
+    --violet: #8b5cf6;
+    --gradient-accent: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
+    --gradient-gold: linear-gradient(135deg, #c9a144, #e4c76b);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --font-display: 'Noto Serif SC', 'Cormorant Garamond', serif;
+    --font-body: 'Noto Sans SC', system-ui, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    line-height: 1.7;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Dot grid background ── */
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: .18;
+    background-image: radial-gradient(rgba(99,102,241,0.35) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: radial-gradient(ellipse 70% 70% at 50% 30%, black 30%, transparent 70%);
+  }
+
+  /* ── Ambient glow orbs ── */
+  .glow-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: .12;
+  }
+  .glow-orb--indigo {
+    width: 600px; height: 600px;
+    background: var(--indigo);
+    top: -200px; right: -200px;
+  }
+  .glow-orb--violet {
+    width: 500px; height: 500px;
+    background: var(--violet);
+    bottom: -150px; left: -150px;
+  }
+  .glow-orb--gold {
+    width: 300px; height: 300px;
+    background: var(--gold);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: .06;
+  }
+
+  /* ── Container ── */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    padding: 60px 0 48px;
+    position: relative;
+  }
+  .header::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: var(--gradient-gold);
+    margin: 32px auto 0;
+    border-radius: 2px;
+  }
+  .header__name {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 700;
+    letter-spacing: .04em;
+    background: linear-gradient(180deg, #f0e6d3 0%, #c9a144 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+  .header__title {
+    font-family: var(--font-body);
+    font-size: clamp(15px, 2vw, 18px);
+    font-weight: 400;
+    color: var(--text-secondary);
+    letter-spacing: .12em;
+    margin-top: 12px;
+    text-transform: uppercase;
+  }
+  .header__contact {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .header__contact span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 300;
+  }
+  .header__contact .contact-icon {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+  }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 48px;
+  }
+  .section__title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: .06em;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .section__title::before {
+    content: '';
+    width: 4px;
+    height: 28px;
+    background: var(--gradient-gold);
+    border-radius: 2px;
+  }
+
+  /* ── Glass card ── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    padding: 28px 28px 24px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-glow);
+    box-shadow: 0 8px 40px rgba(99,102,241,0.08);
+  }
+  .card__accent-line {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--gradient-accent);
+    border-radius: 0 2px 2px 0;
+    opacity: 0;
+    transition: opacity .3s ease;
+  }
+  .card:hover .card__accent-line { opacity: 1; }
+
+  /* ── Two column grid ── */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  /* ── Timeline ── */
+  .timeline-item {
+    position: relative;
+    padding-left: 24px;
+    margin-bottom: 28px;
+    border-left: 1px solid var(--border-subtle);
+  }
+  .timeline-item:last-child { margin-bottom: 0; }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -5px; top: 6px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 12px rgba(201,161,68,.4);
+  }
+  .timeline-item__period {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gold-light);
+    letter-spacing: .06em;
+    margin-bottom: 6px;
+  }
+  .timeline-item__org {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .timeline-item__role {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .timeline-item__desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  /* ── Skill tags ── */
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .tag {
+    font-size: 13px;
+    font-weight: 400;
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(201,161,68,.25);
+    color: var(--gold-light);
+    background: rgba(201,161,68,.06);
+    letter-spacing: .03em;
+    transition: all .25s ease;
+  }
+  .tag:hover {
+    background: rgba(201,161,68,.14);
+    border-color: var(--gold);
+  }
+  .tag--tech {
+    border-color: rgba(99,102,241,.25);
+    color: #a5b4fc;
+    background: rgba(99,102,241,.06);
+  }
+  .tag--tech:hover {
+    background: rgba(99,102,241,.14);
+    border-color: var(--indigo);
+  }
+
+  /* ── Award list ── */
+  .award-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .award-list li {
+    font-size: 14px;
+    color: var(--text-secondary);
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,.015);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .award-list li::before {
+    content: '◆';
+    font-size: 8px;
+    color: var(--gold);
+  }
+
+  /* ── Education card ── */
+  .edu-block {
+    margin-bottom: 20px;
+  }
+  .edu-block:last-child { margin-bottom: 0; }
+  .edu-block__period {
+    font-size: 12px;
+    color: var(--gold-light);
+    font-weight: 500;
+    letter-spacing: .06em;
+  }
+  .edu-block__school {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 4px 0;
+  }
+  .edu-block__major {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  .edu-block__detail {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  /* ── QR button ── */
+  .qr-trigger {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 100;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid rgba(201,161,68,.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: var(--gold-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .3s ease;
+    box-shadow: 0 4px 24px rgba(0,0,0,.4);
+  }
+  .qr-trigger:hover {
+    border-color: var(--gold);
+    box-shadow: 0 4px 32px rgba(201,161,68,.2);
+    transform: scale(1.08);
+  }
+  .qr-trigger svg {
+    width: 24px;
+    height: 24px;
+  }
+  .qr-trigger__label {
+    position: absolute;
+    right: 68px;
+    white-space: nowrap;
+    font-size: 13px;
+    color: var(--text-secondary);
+    background: var(--bg-card);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(8px);
+    transition: all .3s ease;
+  }
+  .qr-trigger:hover .qr-trigger__label {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(5,5,16,.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .35s ease;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .modal {
+    background: #0e0e1a;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: var(--radius);
+    padding: 40px;
+    text-align: center;
+    max-width: 380px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 24px 80px rgba(0,0,0,.6);
+  }
+  .modal__title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+  .modal__subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+  .modal__qr {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .modal__qr canvas,
+  .modal__qr img {
+    border-radius: 12px !important;
+    border: 1px solid rgba(255,255,255,.06);
+  }
+  .modal__url {
+    font-size: 12px;
+    color: var(--text-muted);
+    word-break: break-all;
+    margin-bottom: 24px;
+  }
+  .modal__close {
+    font-family: var(--font-body);
+    font-size: 13px;
+    padding: 10px 28px;
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.04);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all .25s ease;
+    letter-spacing: .04em;
+  }
+  .modal__close:hover {
+    background: rgba(255,255,255,.1);
+    color: #fff;
+  }
+
+  /* ── Edit hint ── */
+  [contenteditable]:hover {
+    outline: 1px dashed rgba(99,102,241,.25);
+    outline-offset: 4px;
+    border-radius: 4px;
+    cursor: text;
+  }
+  [contenteditable]:focus {
+    outline: 1px solid rgba(99,102,241,.5);
+    outline-offset: 4px;
+    border-radius: 4px;
+    background: rgba(99,102,241,.04);
+  }
+  .edit-hint {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 56px;
+    letter-spacing: .06em;
+    opacity: .5;
+  }
+
+  /* ── Print ── */
+  @media print {
+    body { background: #fff; color: #1a1a1a; }
+    .bg-grid, .glow-orb, .qr-trigger, .edit-hint { display: none !important; }
+    .card {
+      background: #fff;
+      border: 1px solid #ddd;
+      box-shadow: none;
+      backdrop-filter: none;
+      break-inside: avoid;
+    }
+    .card:hover { transform: none; border-color: #ddd; box-shadow: none; }
+    .card__accent-line { opacity: 1; }
+    .header__name { -webkit-text-fill-color: #1a1a1a; }
+    .tag { border-color: #999; color: #555; background: #f5f5f5; }
+    .tag--tech { border-color: #999; color: #555; background: #f5f5f5; }
+    .timeline-item { border-left-color: #ccc; }
+    .timeline-item__period, .timeline-item__org, .timeline-item__role, .timeline-item__desc,
+    .edu-block__period, .edu-block__school, .edu-block__major, .edu-block__detail,
+    .header__contact span, .award-list li { color: #333; }
+    .section__title::before { background: #333; }
+    .container { padding: 24px; max-width: 100%; }
+    .grid-2 { grid-template-columns: 1fr; gap: 16px; }
+    @page { margin: 12mm; }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .award-list { grid-template-columns: 1fr; }
+    .header__contact { gap: 16px; }
+    .container { padding: 32px 16px 64px; }
+    .header { padding: 32px 0 32px; }
+    .qr-trigger { bottom: 20px; right: 20px; width: 48px; height: 48px; }
+    .modal { padding: 28px 20px; }
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-in {
+    animation: fadeUp .6s ease both;
+  }
+  .delay-1 { animation-delay: .1s; }
+  .delay-2 { animation-delay: .2s; }
+  .delay-3 { animation-delay: .3s; }
+  .delay-4 { animation-delay: .4s; }
+  .delay-5 { animation-delay: .5s; }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="glow-orb glow-orb--indigo"></div>
+<div class="glow-orb glow-orb--violet"></div>
+<div class="glow-orb glow-orb--gold"></div>
+
+<div class="container">
+
+  <!-- Header -->
+  <header class="header animate-in">
+    <h1 class="header__name" contenteditable>张铠</h1>
+    <p class="header__title" contenteditable>AI & Web3 产品经理</p>
+    <div class="header__contact">
+      <span contenteditable><span class="contact-icon"></span>15653992332</span>
+      <span contenteditable><span class="contact-icon"></span>kason-kai@qq.com</span>
+      <span contenteditable><span class="contact-icon"></span>北京</span>
+    </div>
+  </header>
+
+  <!-- Two Column: Education + Skills -->
+  <div class="grid-2">
+
+    <!-- 教育背景 -->
+    <section class="section animate-in delay-1">
+      <h2 class="section__title" contenteditable>教育背景</h2>
+      <div class="card">
+        <div class="card__accent-line"></div>
+        <div class="edu-block">
+          <p class="edu-block__period" contenteditable>2024.08 – 2027.06</p>
+          <p class="edu-block__school" contenteditable>中国农业大学</p>
+          <p class="edu-block__major" contenteditable>农业生物环境与能源工程 · 硕士</p>
+          <p class="edu-block__detail" contenteditable>GPA 3.75/4.0，专业前 5%，硕士学业一等奖学金<br>核心课程：数据分析与可视化、人工智能前沿与实践、数据库及应用统计、AI 产品相关课程</p>
+        </div>
+        <div class="edu-block" style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border-subtle);">
+          <p class="edu-block__period" contenteditable>2019.09 – 2023.06</p>
+          <p class="edu-block__school" contenteditable>中国农业大学</p>
+          <p class="edu-block__major" contenteditable>设施农业科学与工程 · 本科</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 技能 -->
+    <section class="section animate-in delay-1">
+      <h2 class="section__title" contenteditable>专业技能</h2>
+      <div class="card">
+        <div class="card__accent-line"></div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;" contenteditable>产品能力</p>
+        <div class="tag-list" style="margin-bottom:20px;">
+          <span class="tag" contenteditable>PRD 撰写</span>
+          <span class="tag" contenteditable>AI 产品设计</span>
+          <span class="tag" contenteditable>项目管理</span>
+          <span class="tag" contenteditable>团队协同</span>
+          <span class="tag" contenteditable>用户研究与运营</span>
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;" contenteditable>技术工具</p>
+        <div class="tag-list" style="margin-bottom:20px;">
+          <span class="tag tag--tech" contenteditable>数据分析与可视化</span>
+          <span class="tag tag--tech" contenteditable>数据库管理</span>
+          <span class="tag tag--tech" contenteditable>CAD 制图</span>
+          <span class="tag tag--tech" contenteditable>Excel 数据分析</span>
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;" contenteditable>语言 & 综合</p>
+        <div class="tag-list">
+          <span class="tag" contenteditable>CET-6 · 英文文档阅读</span>
+          <span class="tag" contenteditable>4 年班长 · 志愿 361h</span>
+          <span class="tag" contenteditable>组织/沟通/执行力</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 工作经历 -->
+  <section class="section animate-in delay-2">
+    <h2 class="section__title" contenteditable>工作经历</h2>
+    <div class="card">
+      <div class="card__accent-line"></div>
+      <div class="timeline-item">
+        <p class="timeline-item__period" contenteditable>2025.12 – 至今</p>
+        <p class="timeline-item__org" contenteditable>光环科技团队</p>
+        <p class="timeline-item__role" contenteditable>项目负责人 · 设施园艺全生命周期智能感知与决策系统</p>
+        <p class="timeline-item__desc" contenteditable>负责 AI 智能感知 + 数据决策系统的方案设计、系统架构与项目管理实施。融合多源数据与深度学习算法，构建智能决策模型，具备 AI 产品 0→1 落地经验。获北京市"挑战杯"创新创业大赛铜奖。</p>
+      </div>
+      <div class="timeline-item">
+        <p class="timeline-item__period" contenteditable>2025.05 – 2025.08</p>
+        <p class="timeline-item__org" contenteditable>数字沙尘科技有限公司</p>
+        <p class="timeline-item__role" contenteditable>产品助理 · WRITE-BUG / 数字 AI 产品</p>
+        <p class="timeline-item__desc" contenteditable>负责 AI 应用产品的功能迭代、用户增长、内容运营，完成从用户调研到产品上线的全流程。参与世界人工智能大会（上海）项目对接与产品路演，撰写 PRD、用户旅程地图与功能清单，协同研发推进版本交付与体验优化。</p>
+      </div>
+      <div class="timeline-item">
+        <p class="timeline-item__period" contenteditable>2024.03 – 2024.07</p>
+        <p class="timeline-item__org" contenteditable>北京市农林科学院</p>
+        <p class="timeline-item__role" contenteditable>项目实习生 · 信息技术方向</p>
+        <p class="timeline-item__desc" contenteditable>参与智能检测实验方案设计、实验装置搭建与数据采集，形成标准化流程文档。负责检测方案论证与报告撰写，具备软硬件结合的产品优化意识。</p>
+      </div>
+      <div class="timeline-item">
+        <p class="timeline-item__period" contenteditable>2023.06 – 2023.08</p>
+        <p class="timeline-item__org" contenteditable>寿光市科农科技股份有限公司</p>
+        <p class="timeline-item__role" contenteditable>应用技术实习</p>
+        <p class="timeline-item__desc" contenteditable>深入寿光大棚实地推广产品与技术，对接 B 端客户需求，梳理产品痛点并反馈优化建议。开展市场调研、竞品分析与需求收集，积累 ToB 产品思维与客户沟通经验。期间实现发明专利 1 项、科技论文 1 篇。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Two Column: Projects + Awards -->
+  <div class="grid-2">
+
+    <!-- 项目经历 -->
+    <section class="section animate-in delay-3">
+      <h2 class="section__title" contenteditable>项目经历</h2>
+      <div class="card">
+        <div class="card__accent-line"></div>
+        <div style="margin-bottom:20px;">
+          <p style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px;" contenteditable>设施园艺全生命周期智能感知与决策系统</p>
+          <p style="font-size:12px;color:var(--gold-light);margin-bottom:8px;" contenteditable>2025.12 – 至今 · 项目负责人</p>
+          <p style="font-size:13px;color:var(--text-muted);line-height:1.8;" contenteditable>融合多源传感数据与 AI 算法，构建设施园艺全生命周期的智能感知、分析与决策系统，实现从数据采集到精准管控的闭环。</p>
+        </div>
+        <div style="padding-top:16px; border-top:1px solid var(--border-subtle);">
+          <p style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px;" contenteditable>URP 项目 — 农耕文化在农业高校中的实践与探索</p>
+          <p style="font-size:12px;color:var(--gold-light);margin-bottom:8px;" contenteditable>2019.09 – 2023.06 · 负责人</p>
+          <p style="font-size:13px;color:var(--text-muted);line-height:1.8;" contenteditable>独立完成项目设计、理论模型构建与问卷调研，主导全周期数据分析与研究报告撰写，具备用户研究、定量分析与项目管理全流程能力。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 获奖荣誉 -->
+    <section class="section animate-in delay-3">
+      <h2 class="section__title" contenteditable>获奖荣誉</h2>
+      <div class="card">
+        <div class="card__accent-line"></div>
+        <ul class="award-list">
+          <li contenteditable>全国大学生数学竞赛二等奖（国家级）</li>
+          <li contenteditable>"挑战杯"创新创业大赛铜奖（省部级 A）</li>
+          <li contenteditable>校级优秀学生干部</li>
+          <li contenteditable>校园十佳歌手</li>
+          <li contenteditable>中国农业大学优秀奖学金</li>
+          <li contenteditable>中国农业大学三好学生</li>
+          <li contenteditable>农业设施与农业工程重点实验室项目负责人</li>
+          <li contenteditable>中国农业大学数学建模二等奖</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <p class="edit-hint">💡 点击任意文字区域即可编辑 · 支持打印（Ctrl+P）</p>
+
+</div>
+
+<!-- QR Code Button -->
+<button class="qr-trigger" id="qrTrigger" title="微信扫码查看">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="3" width="7" height="7"/>
+    <rect x="14" y="3" width="7" height="7"/>
+    <rect x="3" y="14" width="7" height="7"/>
+    <rect x="14" y="14" width="3" height="3"/>
+    <rect x="18" y="18" width="3" height="3"/>
+    <rect x="18" y="14" width="3" height="1"/>
+    <rect x="14" y="18" width="1" height="3"/>
+  </svg>
+  <span class="qr-trigger__label">微信扫码查看</span>
+</button>
+
+<!-- QR Code Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <p class="modal__title">微信扫码查看简历</p>
+    <p class="modal__subtitle">用微信扫一扫打开此简历网页</p>
+    <div class="modal__qr" id="qrContainer"></div>
+    <p class="modal__url" id="modalUrl">加载中...</p>
+    <button class="modal__close" id="modalClose">关闭</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js">
+</script>
+<script>
+  // ═══ CONFIG: 将此 URL 替换为你部署后的实际地址 ═══
+  const RESUME_URL = window.location.href || 'https://resume.zhangkai.dev';
+  // ═══════════════════════════════════════════════════
+
+  const qrTrigger = document.getElementById('qrTrigger');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalClose = document.getElementById('modalClose');
+  const qrContainer = document.getElementById('qrContainer');
+  const modalUrl = document.getElementById('modalUrl');
+  let qrGenerated = false;
+
+  function generateQR() {
+    if (qrGenerated) return;
+    qrContainer.innerHTML = '';
+    new QRCode(qrContainer, {
+      text: RESUME_URL,
+      width: 200,
+      height: 200,
+      colorDark: '#c9a144',
+      colorLight: '#0e0e1a',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    modalUrl.textContent = RESUME_URL;
+    qrGenerated = true;
+  }
+
+  qrTrigger.addEventListener('click', () => {
+    modalOverlay.classList.add('active');
+    generateQR();
+  });
+
+  modalClose.addEventListener('click', () => {
+    modalOverlay.classList.remove('active');
+  });
+
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) {
+      modalOverlay.classList.remove('active');
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+      modalOverlay.classList.remove('active');
+    }
+  });
+</script>
+
+</body>
+</html>

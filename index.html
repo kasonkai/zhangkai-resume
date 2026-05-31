@@ -519,7 +519,41 @@
     color: var(--text-muted);
     margin-top: 48px;
     letter-spacing: .06em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
   }
+  .save-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #4a7c59;
+    opacity: 0;
+    transition: opacity .4s ease;
+  }
+  .save-indicator.visible { opacity: 1; }
+  .save-indicator::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #4a7c59;
+  }
+  .reset-btn {
+    font-family: var(--font-body);
+    font-size: 11px;
+    padding: 4px 14px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text-muted);
+    cursor: pointer;
+    letter-spacing: .04em;
+    transition: all .2s ease;
+  }
+  .reset-btn:hover { border-color: #c44; color: #c44; }
 
   /* ── Print ── */
   @media print {
@@ -738,7 +772,11 @@
     </div>
   </section>
 
-  <p class="footer-note">点击任意文字区域可编辑 · 证件照与证书图片可替换本地文件 · Ctrl+P 打印</p>
+  <p class="footer-note">
+    <span>点击任意文字可编辑 · 修改自动保存到浏览器</span>
+    <span class="save-indicator" id="saveDot">已保存</span>
+    <button class="reset-btn" id="resetBtn" title="清除所有编辑，恢复默认内容">↺ 恢复默认</button>
+  </p>
 
 </div><!-- /.page -->
 
@@ -767,48 +805,148 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
   const PAGE_URL = 'https://kasonkai.github.io/zhangkai-resume/';
+  const STORAGE_KEY = 'resume_data_v2';
   const qrFab = document.getElementById('qrFab');
   const overlay = document.getElementById('modalOverlay');
   const qrBox = document.getElementById('qrBox');
   const modalUrl = document.getElementById('modalUrl');
+  const saveDot = document.getElementById('saveDot');
+  const resetBtn = document.getElementById('resetBtn');
   let qrDone = false;
+  let saveTimer = null;
 
+  // ═══ QR Code ═══
   qrFab.addEventListener('click', () => {
     overlay.classList.add('active');
     if (!qrDone) {
       new QRCode(qrBox, {
-        text: PAGE_URL,
-        width: 200, height: 200,
-        colorDark: '#1c1917',
-        colorLight: '#ffffff',
+        text: PAGE_URL, width: 200, height: 200,
+        colorDark: '#1c1917', colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.M
       });
       modalUrl.textContent = PAGE_URL;
       qrDone = true;
     }
   });
-
   document.getElementById('modalClose').addEventListener('click', () => overlay.classList.remove('active'));
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('active'); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') overlay.classList.remove('active'); });
 
-  // ── 图片替换交互 ──
+  // ═══ localStorage 自动保存 ═══
+  function flashSave() {
+    saveDot.classList.add('visible');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => saveDot.classList.remove('visible'), 1500);
+  }
+
+  function collectAllData() {
+    const data = { texts: {}, images: {} };
+
+    // 收集所有 contenteditable 文字区域
+    document.querySelectorAll('[contenteditable]').forEach((el, i) => {
+      let id = el.dataset.saveId;
+      if (!id) {
+        id = 'text_' + i;
+        el.dataset.saveId = id;
+      }
+      data.texts[id] = el.innerHTML;
+    });
+
+    // 收集图片（证件照 + 证书）
+    const photoImg = document.querySelector('.header__photo img');
+    if (photoImg) data.images['photo'] = photoImg.src;
+
+    document.querySelectorAll('.img-thumb img').forEach((img, i) => {
+      data.images['cert_' + i] = img.src;
+    });
+
+    return data;
+  }
+
+  function saveAll() {
+    try {
+      const data = collectAllData();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      flashSave();
+    } catch (e) {
+      // localStorage 满了（如图片太大），只保存文本
+      try {
+        const data = collectAllData();
+        data.images = {};
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        flashSave();
+      } catch (_) {}
+    }
+  }
+
+  function restoreAll() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+
+      // 恢复文字
+      if (data.texts) {
+        document.querySelectorAll('[contenteditable]').forEach((el, i) => {
+          let id = el.dataset.saveId;
+          if (!id) { id = 'text_' + i; el.dataset.saveId = id; }
+          if (data.texts[id] !== undefined) {
+            el.innerHTML = data.texts[id];
+          }
+        });
+      }
+
+      // 恢复证件照
+      if (data.images && data.images['photo']) {
+        const photoBox = document.querySelector('.header__photo');
+        const img = document.createElement('img');
+        img.src = data.images['photo'];
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+        photoBox.innerHTML = '';
+        photoBox.appendChild(img);
+      }
+
+      // 恢复证书图片
+      if (data.images) {
+        document.querySelectorAll('.img-thumb').forEach((thumb, i) => {
+          const key = 'cert_' + i;
+          if (data.images[key]) {
+            thumb.querySelector('.img-thumb__placeholder')?.remove();
+            const oldImg = thumb.querySelector('img');
+            if (oldImg) oldImg.remove();
+            const img = document.createElement('img');
+            img.src = data.images[key];
+            thumb.insertBefore(img, thumb.firstChild);
+          }
+        });
+      }
+    } catch (_) {}
+  }
+
+  // 所有 contenteditable 元素失焦时自动保存
+  document.addEventListener('focusout', e => {
+    if (e.target.closest('[contenteditable]') || e.target.isContentEditable) {
+      saveAll();
+    }
+  });
+
+  // ═══ 图片替换 + 自动保存 ═══
   document.querySelectorAll('.img-thumb').forEach(thumb => {
     thumb.addEventListener('click', () => {
       const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
+      input.type = 'file'; input.accept = 'image/*';
       input.onchange = e => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = ev => {
-          const img = document.createElement('img');
-          img.src = ev.target.result;
           thumb.querySelector('.img-thumb__placeholder')?.remove();
           const oldImg = thumb.querySelector('img');
           if (oldImg) oldImg.remove();
+          const img = document.createElement('img');
+          img.src = ev.target.result;
           thumb.insertBefore(img, thumb.firstChild);
+          saveAll();
         };
         reader.readAsDataURL(file);
       };
@@ -816,14 +954,13 @@
     });
   });
 
-  // ── 证件照替换 ──
+  // 证件照替换 + 自动保存
   const photoBox = document.querySelector('.header__photo');
   photoBox.style.cursor = 'pointer';
   photoBox.title = '点击上传证件照';
   photoBox.addEventListener('click', () => {
     const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
+    input.type = 'file'; input.accept = 'image/*';
     input.onchange = e => {
       const file = e.target.files[0];
       if (!file) return;
@@ -834,11 +971,23 @@
         img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
         photoBox.innerHTML = '';
         photoBox.appendChild(img);
+        saveAll();
       };
       reader.readAsDataURL(file);
     };
     input.click();
   });
+
+  // ═══ 恢复默认 ═══
+  resetBtn.addEventListener('click', () => {
+    if (confirm('确定要恢复所有内容到默认状态吗？你的修改将被清除。')) {
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+  });
+
+  // ═══ 页面加载时恢复 ═══
+  restoreAll();
 </script>
 
 </body>
